@@ -219,16 +219,12 @@ public class JavaPlugin implements Plugin {
             public void execute(AbstractArchiveTask task) {
                 if (task instanceof Jar) {
                     task.getConventionMapping().map(DefaultConventionsToPropertiesMapping.JAR);
-                    task.dependsOn(PROCESS_RESOURCES_TASK_NAME);
-                    task.dependsOn(COMPILE_TASK_NAME);
                 }
                 else if (task instanceof Tar) {
                     task.getConventionMapping().map(DefaultConventionsToPropertiesMapping.TAR);
-                    task.dependsOn(LIBS_TASK_NAME);
                 }
                 else if (task instanceof Zip) {
                     task.getConventionMapping().map(DefaultConventionsToPropertiesMapping.ZIP);
-                    task.dependsOn(LIBS_TASK_NAME);
                 }
             }
         });
@@ -269,6 +265,8 @@ public class JavaPlugin implements Plugin {
                 return Arrays.asList(project.fileTree(classesDir));
             }
         });
+        jar.dependsOn(PROCESS_RESOURCES_TASK_NAME);
+        jar.dependsOn(COMPILE_TASK_NAME);
         project.getConfigurations().getByName(Dependency.ARCHIVES_CONFIGURATION).addArtifact(new ArchivePublishArtifact(jar));
     }
 
