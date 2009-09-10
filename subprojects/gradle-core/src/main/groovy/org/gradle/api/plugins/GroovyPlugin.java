@@ -28,6 +28,7 @@ import static org.gradle.api.plugins.JavaPlugin.*;
 import org.gradle.api.tasks.ConventionValue;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.GroovySourceSet;
+import org.gradle.api.tasks.TaskDependency;
 import org.gradle.api.tasks.compile.GroovyCompile;
 import org.gradle.api.tasks.javadoc.Groovydoc;
 import org.gradle.api.tasks.javadoc.Javadoc;
@@ -81,9 +82,10 @@ public class GroovyPlugin implements Plugin {
                 ((DynamicObjectAware) sourceSet).getConvention().getPlugins().put("groovy", groovySourceSet);
                 groovySourceSet.getGroovy().srcDir(String.format("src/%s/groovy", sourceSet.getName()));
                 sourceSet.getAllJava().add(groovySourceSet.getGroovy().matching(sourceSet.getJavaSourcePatterns()));
-
+                TaskDependency javaCompileTaskDependency =  project.getTasks().getByName(sourceSet.getCompileTaskName()).getTaskDependencies();
                 GroovyCompile compile = project.getTasks().replace(sourceSet.getCompileTaskName(), GroovyCompile.class);
                 javaPlugin.configureForSourceSet(sourceSet, compile);
+                compile.dependsOn(javaCompileTaskDependency);
                 compile.setDescription(String.format("Compiles the %s Java and Groovy source code.", sourceSet.getName()));
                 compile.conventionMapping("groovySourceDirs", new ConventionValue() {
                     public Object getValue(Convention convention, IConventionAware conventionAwareObject) {
