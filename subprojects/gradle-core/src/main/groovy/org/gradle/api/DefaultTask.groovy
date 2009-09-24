@@ -65,6 +65,12 @@ class DefaultTask extends AbstractTask {
         actionClosure.setResolveStrategy(Closure.OWNER_FIRST);
         return new ClosureTaskAction(actionClosure);
     }
+
+    public boolean doesOutputExists() {
+        return false;
+    }
+
+
 }
 
 class ClosureTaskAction implements TaskAction {

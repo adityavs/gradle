@@ -13,30 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.execution;
+package org.gradle.internal.execution;
+
+import org.gradle.api.Task;
 
 /**
  * @author Hans Dockter
  */
-public class DefaultOutputHistory implements OutputHistory {
-    private boolean createdSuccessfully;
-    private Long lastModified;
+public interface OutputHandler {
+    /**
+     * Persists the history of the task execution.
+     *
+     * @param successful Whether the task execution was successful
+     */
+    void writeTimestamp(boolean successful);
 
-    public DefaultOutputHistory(boolean createdSuccessfully, long timestamp) {
-        this.createdSuccessfully = createdSuccessfully;
-        this.lastModified = timestamp;
-    }
-
-    public DefaultOutputHistory() {
-        this.createdSuccessfully = false;
-        this.lastModified = null;
-    }
-
-    public boolean wasCreatedSuccessfully() {
-        return createdSuccessfully;
-    }
-
-    public Long getLastModified() {
-        return lastModified;
-    }
+    boolean wasNotCreatedOrIsStale(Task... associatedTasks);
+    
+    long getLastModified();
 }

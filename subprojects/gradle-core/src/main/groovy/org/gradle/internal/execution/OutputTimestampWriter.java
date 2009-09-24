@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.execution;
+package org.gradle.internal.execution;
+
+import org.gradle.api.Task;
 
 /**
  * @author Hans Dockter
  */
-public interface OutputHandler {
-    /**
-     * Returns whether a task produces output or not. If this property is true, Gradle will store the execution
-     * history for this task which can be used by other tasks to decide whether they should do work or not.
-     * If this property is set to true, the {@link org.gradle.api.Task#getDidWork()} should have a custom implementation.
-     */
-    boolean getHasOutput();
+public interface OutputTimestampWriter {
+    static final String HISTORY_DIR_NAME = "task-output";
+    
+    void taskSuccessfullyExecuted(Task a);
 
-    /**
-     * Persists the history of the task execution.
-     *
-     * @param successful Whether the task execution was successful
-     */
-    void writeHistory(boolean successful);
+    void taskFailed(Task a);
 }

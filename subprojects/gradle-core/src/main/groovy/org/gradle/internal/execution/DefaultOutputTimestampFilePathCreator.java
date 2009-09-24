@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.execution;
+package org.gradle.internal.execution;
 
 import org.gradle.api.Task;
+import org.gradle.groovy.scripts.ScriptSource;
+import org.gradle.util.HashUtil;
 import org.gradle.util.GFileUtils;
 
 import java.io.File;
@@ -23,14 +25,11 @@ import java.io.File;
 /**
  * @author Hans Dockter
  */
-public class DefaultOutputHistoryReader implements OutputHistoryReader {
-    public OutputHistory readHistory(Task task) {
-        File historyFile = new File(task.getProject().getBuildDir(), OutputHistoryWriter.HISTORY_DIR_NAME + "/" +
-                HistoryPathConverter.convertTaskPath(task.getPath()));
-        if (historyFile.isFile()) {
-            long timestamp = Long.parseLong(GFileUtils.readFileToString(historyFile));
-            return new DefaultOutputHistory(true, timestamp);
-        }
-        return new DefaultOutputHistory();
+public class DefaultOutputTimestampFilePathCreator implements OutputTimestampFilePathCreator {
+    public File createPath(Task task) {
+        File taskOutputRootDir = new File(task.getProject().getGradle().getGradleUserHomeDir(), OutputTimestampWriter.HISTORY_DIR_NAME);
+        File pathBase = task.getProject().getRootDir();
+        String path = HashUtil.createHash(GFileUtils.canonicalise(pathBase).getAbsolutePath());
+        return new File(taskOutputRootDir, path + task.getPath().replace(":", "/"));
     }
 }

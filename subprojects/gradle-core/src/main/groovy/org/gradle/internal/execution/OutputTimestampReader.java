@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.execution;
+package org.gradle.internal.execution;
 
 import org.gradle.api.Task;
 
 /**
  * @author Hans Dockter
  */
-public interface OutputHistoryWriter {
-    static final String HISTORY_DIR_NAME = ".gradle/task-execution-history";
-    
-    void taskSuccessfullyExecuted(Task a);
-
-    void taskFailed(Task a);
+public interface OutputTimestampReader {
+    long readTimestamp(Task task);
 }

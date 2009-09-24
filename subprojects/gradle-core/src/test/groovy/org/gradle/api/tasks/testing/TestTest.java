@@ -25,13 +25,15 @@ import org.gradle.api.testing.TestFramework;
 import org.gradle.util.GFileUtils;
 import org.gradle.util.GUtil;
 import org.gradle.util.WrapUtil;
+import org.gradle.util.HelperUtil;
 import org.hamcrest.Matchers;
+import static org.hamcrest.Matchers.*;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
 import org.jmock.lib.legacy.ClassImposteriser;
 import static org.junit.Assert.*;
-import org.junit.Before;
+import org.junit.*;
 import org.junit.runner.RunWith;
 
 import java.io.File;
@@ -165,7 +167,7 @@ public class TestTest extends AbstractConventionTaskTest {
             test.execute();
             fail();
         } catch (Exception e) {
-            assertThat(e.getCause(), Matchers.instanceOf(InvalidUserDataException.class));
+            assertThat(e.getCause(), instanceOf(InvalidUserDataException.class));
         }
     }
 
@@ -176,7 +178,7 @@ public class TestTest extends AbstractConventionTaskTest {
             test.execute();
             fail();
         } catch (Exception e) {
-            assertThat(e.getCause(), Matchers.instanceOf(InvalidUserDataException.class));
+            assertThat(e.getCause(), instanceOf(InvalidUserDataException.class));
         }
     }
 
@@ -205,5 +207,35 @@ public class TestTest extends AbstractConventionTaskTest {
         assertEquals(WrapUtil.toLinkedSet(TEST_PATTERN_1, TEST_PATTERN_2), test.getExcludes());
         test.exclude(TEST_PATTERN_3);
         assertEquals(WrapUtil.toLinkedSet(TEST_PATTERN_1, TEST_PATTERN_2, TEST_PATTERN_3), test.getExcludes());
+    }
+    
+    @org.junit.Test
+    public void doesOutputExistsWithNoTestResultsDir() {
+        test.setTestResultsDir(new File("someNonExistingDir"));
+        assertThat(test.getTestResultsDir().isDirectory(), equalTo(false));
+        assertThat(test.doesOutputExists(), equalTo(false));
+    }
+
+    @org.junit.Test
+    public void doesOutputExistsWithEmptyTestResultsDir() {
+        File resultsDir = HelperUtil.makeNewTestDir();
+        test.setTestResultsDir(resultsDir);
+        try {
+            assertThat(test.doesOutputExists(), equalTo(false));
+        } finally {
+            HelperUtil.deleteTestDir();
+        }
+    }
+
+    @org.junit.Test
+    public void doesOutputExistsWithTestResults() {
+        File resultsDir = HelperUtil.makeNewTestDir();
+        test.setTestResultsDir(resultsDir);
+        GFileUtils.touch(new File(resultsDir, "TEST-xxx.xml"));
+        try {
+            assertThat(test.doesOutputExists(), equalTo(true));
+        } finally {
+            HelperUtil.deleteTestDir();
+        }
     }
 }

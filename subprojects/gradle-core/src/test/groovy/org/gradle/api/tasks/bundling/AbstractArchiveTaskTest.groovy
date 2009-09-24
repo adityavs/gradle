@@ -18,19 +18,25 @@ package org.gradle.api.tasks.bundling
 
 import groovy.mock.interceptor.MockFor
 import org.gradle.api.InvalidUserDataException
-import org.gradle.api.tasks.AbstractConventionTaskTest
-import org.gradle.api.tasks.util.AntDirective
-import org.gradle.api.tasks.util.FileSet
-import org.gradle.api.tasks.util.ZipFileSet
-import org.gradle.util.HelperUtil
-import org.junit.Before
-import org.junit.Test
-import static org.junit.Assert.*
-import static org.hamcrest.Matchers.*
-import static org.gradle.util.Matchers.*
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.tasks.AbstractConventionTaskTest
+import org.gradle.api.tasks.bundling.AbstractArchiveTask
+import org.gradle.api.tasks.bundling.AntArchiveParameter
+import org.gradle.api.tasks.bundling.AntMetaArchiveParameter
+import org.gradle.api.tasks.bundling.ArchiveDetector
+import org.gradle.api.tasks.util.AntDirective
+import org.gradle.api.tasks.util.FileSet
+import org.gradle.api.tasks.util.ZipFileSet
+import org.gradle.util.GFileUtils
+import org.gradle.util.HelperUtil
+import org.hamcrest.Matchers
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import static org.hamcrest.Matchers.hasItem
+import static org.junit.Assert.*
 
 /**
  * @author Hans Dockter
@@ -52,6 +58,10 @@ abstract class AbstractArchiveTaskTest extends AbstractConventionTaskTest {
 
     @Before public void setUp() {
         super.setUp()
+    }
+
+    @After public void tearDown() {
+        HelperUtil.deleteTestDir();
     }
 
     void checkConstructor() {
@@ -209,6 +219,17 @@ abstract class AbstractArchiveTaskTest extends AbstractConventionTaskTest {
         assertEquals(1, mergeGroups.size())
         assertEquals(mergeGroups[0].dir, project.file('testDir'))
         assertEquals(mergeGroups[0].includes, ['a'] as Set)
+    }
+
+    @Test public void testDoesOutputExistsWithNonExistingArchive() {
+        assertFalse(archiveTask.getArchivePath().isFile())
+        assertFalse(archiveTask.doesOutputExists())
+    }
+
+    @Test public void testDoesOutputExistsWithExistingArchive() {
+        archiveTask.destinationDir.mkdirs();
+        GFileUtils.touch(archiveTask.getArchivePath())
+        assertTrue(archiveTask.doesOutputExists())
     }
 
 }

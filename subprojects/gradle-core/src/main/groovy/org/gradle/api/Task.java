@@ -22,7 +22,6 @@ import org.gradle.api.logging.Logger;
 import org.gradle.api.plugins.Convention;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.TaskDependency;
-import org.gradle.execution.OutputHandler;
 
 import java.util.List;
 import java.util.Set;
@@ -308,12 +307,6 @@ public interface Task extends Comparable<Task> {
     boolean getEnabled();
 
     /**
-     * Returns a OutputHandler object providing information whether a task's output was created successfully and when it
-     * was last modified.
-     */
-    OutputHandler getOutput();
-
-    /**
      * <p>Set the enabled state of a task. If a task is disabled none of the its actions are executed. Note that
      * disabling a task does not prevent the execution of the tasks which this task depends on.</p>
      *
@@ -447,5 +440,24 @@ public interface Task extends Comparable<Task> {
      * @return true if any task this task depends on did work.
      */
     boolean dependsOnTaskDidWork();
+
+    /**
+     * Returns whether the output this task is supposed to produce exists. This information can be used for optimizing
+     * task execution. This methods returns by default <code>false</code>. Specific tasks may provide their own 
+     * implementation for this method. This method is not supposed to do a 100 percent check whether the existing output
+     * is correct. It rather does a sample check and is usually used in conjunction with {@link #getOutputLastModified} to
+     * make a reliable assumption whether the task needs to be executed or not.
+     */
+    boolean doesOutputExists();
+    
+    /**
+     * Returns the time of the last time the task output was modified. If the last task execution was not successful,
+     * or if there is no history information available, 0 is returned. For tasks that do not implement
+     * {@link org.gradle.api.Task#getDidWork()}, the returned time is always the time when the task was executed the
+     * last time.
+     */
+    long getOutputLastModified();
+    
+    boolean outputNotCreatedOrStale(Task... associatedTasks);
 }
 

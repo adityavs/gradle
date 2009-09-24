@@ -13,12 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.gradle.execution;
+package org.gradle.internal.execution;
 
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.invocation.Gradle;
 import org.gradle.util.GFileUtils;
 import org.gradle.util.HelperUtil;
+import org.gradle.internal.execution.DefaultOutputTimestampReader;
+import org.gradle.internal.execution.OutputTimestampWriter;
 import static org.hamcrest.Matchers.equalTo;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
@@ -31,26 +34,20 @@ import java.io.File;
 /**
  * @author Hans Dockter
  */
-public class DefaultOutputHistoryReaderTest {
+public class DefaultOutputTimestampReaderTest {
     private JUnit4Mockery context = new JUnit4Mockery();
     private Task taskStub = context.mock(Task.class);
-    
-    private DefaultOutputHistoryReader outputHistoryReader = new DefaultOutputHistoryReader();
-    private Project projectStub = context.mock(Project.class);
-    private static final String TASK_PATH = ":someProjectPath:someTaskName";
-    private static final String CONVERTED_TASK_PATH = TASK_PATH.replace(":", "/");
-    private static final String HISTORY_FILE_PATH = OutputHistoryWriter.HISTORY_DIR_NAME + "/" + CONVERTED_TASK_PATH;
-    private File historyDir = HelperUtil.makeNewTestDir();
+    private File outputTimestampFile = new File(HelperUtil.makeNewTestDir(), "somepath");
+
+    private DefaultOutputTimestampReader outputTimestampReader = new DefaultOutputTimestampReader();
+    private OutputTimestampFilePathCreator outputTimestampFilePathCreatorStub = context.mock(OutputTimestampFilePathCreator.class);
 
     @Before
     public void setUp() {
+        outputTimestampReader.setOutputTimestampFilePathCreator(outputTimestampFilePathCreatorStub);
         context.checking(new Expectations() {{
-            allowing(taskStub).getPath();
-            will(returnValue(TASK_PATH));
-            allowing(taskStub).getProject();
-            will(returnValue(projectStub));
-            allowing(projectStub).getBuildDir();
-            will(returnValue(historyDir));
+            allowing(outputTimestampFilePathCreatorStub).createPath(taskStub);
+            will(returnValue(outputTimestampFile));
         }});
     }
 
@@ -61,18 +58,13 @@ public class DefaultOutputHistoryReaderTest {
 
     @org.junit.Test
     public void testReadHistoryWithExistingHistoryFile() {
-        File historyFile = new File(historyDir, HISTORY_FILE_PATH);
-        long timestamp = System.currentTimeMillis();
-        GFileUtils.writeStringToFile(historyFile, "" + timestamp);
-        OutputHistory outputHistory = outputHistoryReader.readHistory(taskStub);
-        assertThat(outputHistory.wasCreatedSuccessfully(), equalTo(true));
-        assertThat(outputHistory.getLastModified(), equalTo(timestamp));
+        long timestamp = 1111;
+        GFileUtils.writeStringToFile(outputTimestampFile, "" + timestamp);
+        assertThat(outputTimestampReader.readTimestamp(taskStub), equalTo(timestamp));
     }
 
     @org.junit.Test
     public void testReadHistoryWithNonExistingHistoryFile() {
-        OutputHistory outputHistory = outputHistoryReader.readHistory(taskStub);
-        assertThat(outputHistory.wasCreatedSuccessfully(), equalTo(false));
-        assertThat(outputHistory.getLastModified(), equalTo(null));
+        assertThat(outputTimestampReader.readTimestamp(taskStub), equalTo(0L));
     }
 }

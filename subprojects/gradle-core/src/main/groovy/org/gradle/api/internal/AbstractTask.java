@@ -29,8 +29,8 @@ import org.gradle.api.specs.Spec;
 import org.gradle.api.tasks.StopActionException;
 import org.gradle.api.tasks.StopExecutionException;
 import org.gradle.api.tasks.TaskDependency;
-import org.gradle.execution.DefaultOutputHandler;
-import org.gradle.execution.OutputHandler;
+import org.gradle.internal.execution.DefaultOutputHandler;
+import org.gradle.internal.execution.OutputHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -228,11 +228,11 @@ public abstract class AbstractTask implements TaskInternal, DynamicObjectAware {
                     } catch (Throwable t) {
                         executing = false;
                         standardOutputCapture.stop();
-                        outputHandler.writeHistory(false);
+                        outputHandler.writeTimestamp(false);
                         throw new GradleScriptException(String.format("Execution failed for %s.", this), t, project.getBuildScriptSource());
                     }
                 }
-                outputHandler.writeHistory(true);
+                outputHandler.writeTimestamp(true);
                 standardOutputCapture.stop();
             } else {
                 logger.lifecycle("{} SKIPPED as onlyIf is false", path);
@@ -393,6 +393,14 @@ public abstract class AbstractTask implements TaskInternal, DynamicObjectAware {
             }
         }
         return false;
+    }
+
+    public long getOutputLastModified() {
+        return outputHandler.getLastModified();
+    }
+
+    public boolean outputNotCreatedOrStale(Task... associatedTasks) {
+        return outputHandler.wasNotCreatedOrIsStale(associatedTasks);
     }
 
     private static class TaskInfo {

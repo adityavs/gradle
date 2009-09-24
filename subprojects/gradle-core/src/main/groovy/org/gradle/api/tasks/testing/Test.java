@@ -402,4 +402,12 @@ public class Test extends ConventionTask implements PatternFilterable {
     public void setScanForTestClasses(boolean scanForTestClasses) {
         this.scanForTestClasses = scanForTestClasses;
     }
+
+    @Override
+    public boolean doesOutputExists() {
+        if (!getTestResultsDir().isDirectory()) {
+            return false;
+        }
+        return getTestResultsDir().listFiles().length > 0;
+    }
 }

@@ -17,6 +17,7 @@
 package org.gradle.api.plugins;
 
 import org.gradle.api.*;
+import org.gradle.api.specs.Spec;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
 import org.gradle.api.artifacts.Dependency;
@@ -258,6 +259,13 @@ public class JavaPlugin implements Plugin {
                 return Arrays.asList(classes.getAsFileTree());
             }
         });
+        jar.onlyIf(new Spec<Task>() {
+            public boolean isSatisfiedBy(Task jarTask) {
+                Task compileJava = project.getTasks().getByName(COMPILE_JAVA_TASK_NAME);
+                Task processResources = project.getTasks().getByName(PROCESS_RESOURCES_TASK_NAME);
+                return jarTask.outputNotCreatedOrStale(compileJava, processResources);
+            }
+        });
         project.getConfigurations().getByName(Dependency.ARCHIVES_CONFIGURATION).addArtifact(new ArchivePublishArtifact(jar));
     }
 
@@ -289,6 +297,18 @@ public class JavaPlugin implements Plugin {
             }
         });
         project.getTasks().add(TEST_TASK_NAME, Test.class).setDescription("Runs the unit tests.");
+        Test testTask = (Test) project.getTasks().getByName(TEST_TASK_NAME);
+        testTask.onlyIf(new Spec<Task>() {
+            public boolean isSatisfiedBy(Task testTask) {
+                Task compileJava = project.getTasks().getByName(COMPILE_JAVA_TASK_NAME);
+                Task compileJavaTest = project.getTasks().getByName(COMPILE_TEST_JAVA_TASK_NAME);
+                Task processResources = project.getTasks().getByName(PROCESS_RESOURCES_TASK_NAME);
+                Task processTestResources = project.getTasks().getByName(PROCESS_TEST_RESOURCES_TASK_NAME);
+                return testTask.outputNotCreatedOrStale(compileJava, compileJavaTest,
+                        processResources, processTestResources);
+            }
+        });
+
     }
 
     void configureConfigurations(final Project project) {

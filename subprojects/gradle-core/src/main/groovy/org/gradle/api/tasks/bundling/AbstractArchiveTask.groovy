@@ -324,4 +324,10 @@ public abstract class AbstractArchiveTask extends ConventionTask {
     public void setMergeGroupFileSets(List mergeGroupFileSets) {
         this.mergeGroupFileSets = mergeGroupFileSets;
     }
+
+    public boolean doesOutputExists() {
+        return getArchivePath().isFile();
+    }
+
+
 }

@@ -27,7 +27,7 @@ import org.gradle.api.logging.DefaultStandardOutputCapture;
 import org.gradle.api.logging.LogLevel;
 import org.gradle.api.logging.StandardOutputCapture;
 import org.gradle.api.specs.Spec;
-import org.gradle.execution.OutputHandler;
+import org.gradle.internal.execution.OutputHandler;
 import org.gradle.test.util.Check;
 import org.gradle.util.GUtil;
 import org.gradle.util.HelperUtil;
@@ -176,7 +176,7 @@ public abstract class AbstractTaskTest {
         final StandardOutputCapture standardOutputCaptureMock = context.mock(StandardOutputCapture.class);
         getTask().setStandardOutputCapture(standardOutputCaptureMock);
         context.checking(new Expectations() {{
-            one(outputMockHandler).writeHistory(true);
+            one(outputMockHandler).writeTimestamp(true);
             one(standardOutputCaptureMock).start(); inSequence(captureOutput); will(returnValue(standardOutputCaptureMock));
             one(standardOutputCaptureMock).stop(); inSequence(captureOutput); will(returnValue(standardOutputCaptureMock));
         }});
@@ -210,7 +210,7 @@ public abstract class AbstractTaskTest {
         final StandardOutputCapture standardOutputCaptureMock = context.mock(StandardOutputCapture.class);
         getTask().setStandardOutputCapture(standardOutputCaptureMock);
         context.checking(new Expectations() {{
-            one(outputMockHandler).writeHistory(false);
+            one(outputMockHandler).writeTimestamp(false);
             one(standardOutputCaptureMock).start(); inSequence(captureOutput); will(returnValue(standardOutputCaptureMock));
             one(standardOutputCaptureMock).stop(); inSequence(captureOutput); will(returnValue(standardOutputCaptureMock));
         }});
@@ -481,5 +481,29 @@ public abstract class AbstractTaskTest {
 
         task2.setDidWork(true);
         assertTrue(getTask().dependsOnTaskDidWork());
+    }
+
+    @Test
+    public void testGetOutputLastModified() {
+        final OutputHandler outputHandlerStub = context.mock(OutputHandler.class);
+        getTask().setOutputHandler(outputHandlerStub);
+        final long someTimestamp = 1111;
+        context.checking(new Expectations() {{
+            allowing(outputHandlerStub).getLastModified();
+            will(returnValue(someTimestamp));
+        }});
+        assertThat(getTask().getOutputLastModified(), equalTo(someTimestamp));
+    }
+
+    @Test
+    public void testOutputNotCreatedOrStale() {
+        final OutputHandler outputHandlerStub = context.mock(OutputHandler.class);
+        getTask().setOutputHandler(outputHandlerStub);
+        final Task associatedTaskDummy = context.mock(Task.class);
+        context.checking(new Expectations() {{
+            allowing(outputHandlerStub).wasNotCreatedOrIsStale(associatedTaskDummy);
+            will(returnValue(false));
+        }});
+        assertThat(getTask().outputNotCreatedOrStale(associatedTaskDummy), equalTo(false));
     }
 }

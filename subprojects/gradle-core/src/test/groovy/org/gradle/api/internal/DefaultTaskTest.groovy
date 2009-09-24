@@ -117,6 +117,11 @@ class DefaultTaskTest extends AbstractTaskTest {
     void accessNonExistingProperty() {
         defaultTask."unknownProp"
     }
+
+    @Test
+    void doesOutputExists() {
+        assertFalse(defaultTask.doesOutputExists());   
+    }
 }
 
 class TestConvention {
