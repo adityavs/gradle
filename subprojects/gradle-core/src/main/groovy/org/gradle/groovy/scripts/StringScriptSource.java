@@ -21,7 +21,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import java.io.File;
 
-public class StringScriptSource implements ScriptSource {
+public class StringScriptSource implements ScriptSourceInternal {
     public static final String EMBEDDED_SCRIPT_ID = "embedded_script_";
     private final String description;
     private final String content;
@@ -60,5 +60,13 @@ public class StringScriptSource implements ScriptSource {
 
     public int hashCode() {
         return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    public boolean hasChanged() {
+        return true;
+    }
+
+    public void setChanged(boolean changed) {
+        // ignore
     }
 }

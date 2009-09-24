@@ -32,7 +32,7 @@ import java.io.File;
 @RunWith(JMock.class)
 public class StrictScriptSourceTest {
     private final JUnit4Mockery context = new JUnit4Mockery();
-    private final ScriptSource delegate = context.mock(ScriptSource.class);
+    private final ScriptSourceInternal delegate = context.mock(ScriptSourceInternal.class);
     private final File sourceFile = new File(HelperUtil.makeNewTestDir(), "source");
     private final StrictScriptSource scriptSource = new StrictScriptSource(delegate);
 

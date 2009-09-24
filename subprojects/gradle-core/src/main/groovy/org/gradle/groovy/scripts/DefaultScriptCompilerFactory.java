@@ -89,6 +89,7 @@ public class DefaultScriptCompilerFactory implements ScriptCompilerFactory {
                 T cachedScript = scriptCompilationHandler.loadFromCache(source, classLoader, scriptCacheDir,
                         scriptBaseClass);
                 if (cachedScript != null) {
+                    ((ScriptSourceInternal) source).setChanged(false);
                     return cachedScript;
                 }
             }

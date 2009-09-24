@@ -18,21 +18,21 @@ package org.gradle.invocation;
 
 import groovy.lang.Closure;
 import org.gradle.StartParameter;
+import org.gradle.groovy.scripts.ScriptSource;
 import org.gradle.listener.DefaultListenerManager;
 import org.gradle.api.Project;
 import org.gradle.api.ProjectEvaluationListener;
 import org.gradle.api.initialization.dsl.ScriptHandler;
 import org.gradle.api.internal.initialization.ScriptClassLoaderProvider;
 import org.gradle.api.internal.plugins.DefaultPluginRegistry;
-import org.gradle.api.internal.project.DefaultProjectRegistry;
-import org.gradle.api.internal.project.ServiceRegistry;
-import org.gradle.api.internal.project.ServiceRegistryFactory;
-import org.gradle.api.internal.project.StandardOutputRedirector;
+import org.gradle.api.internal.project.*;
+import org.gradle.api.internal.SettingsInternal;
 import org.gradle.api.logging.LogLevel;
 import org.gradle.execution.DefaultTaskExecuter;
 import org.gradle.util.GradleVersion;
 import org.gradle.util.HelperUtil;
 import org.gradle.util.TestClosure;
+import org.gradle.util.WrapUtil;
 import static org.hamcrest.Matchers.*;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;
@@ -55,6 +55,7 @@ public class DefaultGradleTest {
     private final ServiceRegistryFactory serviceRegistryFactoryMock = context.mock(ServiceRegistryFactory.class);
     private final ServiceRegistry serviceRegistryMock = context.mock(ServiceRegistry.class);
     private final StandardOutputRedirector standardOutputRedirectorMock = context.mock(StandardOutputRedirector.class);
+    
     private DefaultGradle gradle;
 
     @Before
@@ -172,5 +173,78 @@ public class DefaultGradleTest {
             one(standardOutputRedirectorMock).off();
         }});
         gradle.disableStandardOutputCapture();
+    }
+
+    @Test
+    public void getSettings() {
+        final SettingsInternal settingsStub = context.mock(SettingsInternal.class);
+        final ScriptSource scriptSourceDummy = context.mock(ScriptSource.class);
+        context.checking(new Expectations() {{
+            allowing(settingsStub).getSettingsScript();
+            will(returnValue(scriptSourceDummy));
+        }});
+        gradle.getBuildListenerBroadcaster().settingsEvaluated(settingsStub);
+        assertThat(gradle.getSettingsSource(), sameInstance(scriptSourceDummy));
+    }
+
+    @Test
+    public void addInitScriptSource() {
+        final ScriptSource initScriptSource1 = context.mock(ScriptSource.class, "initScript1");
+        final ScriptSource initScriptSource2 = context.mock(ScriptSource.class, "initScript2");
+        assertThat(gradle.getInitScriptSources().isEmpty(), equalTo(true));
+        gradle.addInitScriptSource(initScriptSource1);
+        assertThat(gradle.getInitScriptSources(), equalTo(WrapUtil.toList(initScriptSource1)));
+        gradle.addInitScriptSource(initScriptSource2);
+        assertThat(gradle.getInitScriptSources(), equalTo(WrapUtil.toList(initScriptSource1, initScriptSource2)));
+    }
+    
+    @Test
+    public void haveScriptsChangedWithUnchangedScripts() {
+        prepareScriptSources(false, false, false);
+        assertThat(gradle.haveScriptsChanged(), equalTo(false));
+    }
+
+    private void prepareScriptSources(final boolean init, final boolean settings, final boolean project) {
+        final ScriptSource initScriptSource = context.mock(ScriptSource.class, "init");
+        final ScriptSource settingsScriptSource = context.mock(ScriptSource.class, "settings");
+        final ScriptSource projectScriptSource = context.mock(ScriptSource.class, "project");
+        final ProjectInternal projectStub = context.mock(ProjectInternal.class);
+        final IProjectRegistry projectRegistry = context.mock(IProjectRegistry.class);
+        final SettingsInternal settingsStub = context.mock(SettingsInternal.class);
+        gradle.setProjectRegistry(projectRegistry);
+        gradle.getBuildListenerBroadcaster().settingsEvaluated(settingsStub);
+        gradle.addInitScriptSource(initScriptSource);
+        context.checking(new Expectations() {{
+            allowing(settingsStub).getSettingsScript();
+            will(returnValue(settingsScriptSource));
+            allowing(projectRegistry).getAllProjects();
+            will(returnValue(WrapUtil.toSet(projectStub)));
+            allowing(projectStub).getBuildScriptSource();
+            will(returnValue(projectScriptSource));
+            allowing(initScriptSource).hasChanged();
+            will(returnValue(init));
+            allowing(settingsScriptSource).hasChanged();
+            will(returnValue(settings));
+            allowing(projectScriptSource).hasChanged();
+            will(returnValue(project));
+        }});
+    }
+
+    @Test
+    public void haveScriptsChangedWithChangedInitScript() {
+        prepareScriptSources(true, false, false);
+        assertThat(gradle.haveScriptsChanged(), equalTo(true));
+    }
+
+    @Test
+    public void haveScriptsChangedWithChangedSettingsScript() {
+        prepareScriptSources(false, true, false);
+        assertThat(gradle.haveScriptsChanged(), equalTo(true));
+    }
+
+    @Test
+    public void haveScriptsChangedWithChangedBuildScript() {
+        prepareScriptSources(false, false, true);
+        assertThat(gradle.haveScriptsChanged(), equalTo(true));
     }
 }

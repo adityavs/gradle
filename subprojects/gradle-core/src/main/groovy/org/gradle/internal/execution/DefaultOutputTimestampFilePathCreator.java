@@ -16,9 +16,8 @@
 package org.gradle.internal.execution;
 
 import org.gradle.api.Task;
-import org.gradle.groovy.scripts.ScriptSource;
-import org.gradle.util.HashUtil;
 import org.gradle.util.GFileUtils;
+import org.gradle.util.HashUtil;
 
 import java.io.File;
 

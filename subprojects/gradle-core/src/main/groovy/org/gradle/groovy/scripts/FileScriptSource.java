@@ -25,9 +25,10 @@ import java.io.File;
 /**
  * A {@link ScriptSource} which loads the script from a file.
  */
-public class FileScriptSource implements ScriptSource {
+public class FileScriptSource implements ScriptSourceInternal {
     private final String description;
     private final File sourceFile;
+    private boolean changed = true;
 
     public FileScriptSource(String description, File sourceFile) {
         this.description = description;
@@ -92,5 +93,13 @@ public class FileScriptSource implements ScriptSource {
 
     public String getDisplayName() {
         return String.format("%s '%s'", description, sourceFile.getAbsolutePath());
+    }
+
+    public boolean hasChanged() {
+        return changed;
+    }
+
+    public void setChanged(boolean changed) {
+        this.changed = changed;
     }
 }

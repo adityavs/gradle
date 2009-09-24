@@ -46,4 +46,6 @@ public interface ScriptSource {
      * Returns the description for this script. Never returns null.
      */
     String getDisplayName();
+
+    boolean hasChanged();
 }

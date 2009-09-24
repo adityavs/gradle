@@ -22,6 +22,7 @@ import org.gradle.api.*;
 import org.gradle.api.TaskAction;
 import org.gradle.api.internal.AbstractTask;
 import org.gradle.api.internal.GroovySourceGenerationBackedClassGenerator;
+import org.gradle.api.internal.GradleInternal;
 import org.gradle.api.internal.project.*;
 import org.gradle.api.logging.DefaultStandardOutputCapture;
 import org.gradle.api.logging.LogLevel;
@@ -33,6 +34,7 @@ import org.gradle.util.GUtil;
 import org.gradle.util.HelperUtil;
 import static org.gradle.util.Matchers.*;
 import org.gradle.util.WrapUtil;
+import org.gradle.StartParameter;
 import static org.hamcrest.Matchers.*;
 import org.jmock.Expectations;
 import org.jmock.Sequence;
@@ -70,11 +72,17 @@ public abstract class AbstractTaskTest {
     }
 
     public <T extends AbstractTask> T createTask(Class<T> type, Project project, String name) {
-        Task task = taskFactory.createTask(project,
+        AbstractTask task = (AbstractTask) taskFactory.createTask(project,
                 GUtil.map(Task.TASK_TYPE, type,
                         Task.TASK_NAME, name,
                         AnnotationProcessingTaskFactory.DEPENDENCY_AUTO_WIRE, false));
         assertTrue(type.isAssignableFrom(task.getClass()));
+        final OutputHandler outputMockHandler = context.mock(OutputHandler.class, "" + System.identityHashCode(task));
+        task.setOutputHandler(outputMockHandler);
+        context.checking(new Expectations() {{
+            allowing(outputMockHandler).writeTimestamp(true);
+            allowing(outputMockHandler).writeTimestamp(false);
+        }});
         return type.cast(task);
     }
 
@@ -170,7 +178,7 @@ public abstract class AbstractTaskTest {
 
     @Test
     public void testBasicExecute() {
-        final OutputHandler outputMockHandler = context.mock(OutputHandler.class);
+        final OutputHandler outputMockHandler = context.mock(OutputHandler.class, "mock");
         getTask().setOutputHandler(outputMockHandler);
         final Sequence captureOutput = context.sequence("captureOutput");
         final StandardOutputCapture standardOutputCaptureMock = context.mock(StandardOutputCapture.class);
@@ -401,8 +409,61 @@ public abstract class AbstractTaskTest {
     }
 
     @Test
+    public void shouldExecuteWithOnlyIfDisabledByChangedBuildScript() {
+        getTask().onlyIf(new Spec<Task>() {
+            public boolean isSatisfiedBy(Task task) { return false; }
+        });
+        final ProjectInternal project = context.mock(ProjectInternal.class);
+        final GradleInternal gradle = context.mock(GradleInternal.class);
+        getTask().setProject(project);
+        final StartParameter startParameter = new StartParameter();
+        startParameter.setNoOpt(false);
+        context.checking(new Expectations() {{
+            allowing(project).getGradle();
+            will(returnValue(gradle));
+            allowing(gradle).haveScriptsChanged();
+            will(returnValue(true));
+            allowing(gradle).getStartParameter();
+            will(returnValue(startParameter));
+        }});
+        assertExecutionEnabled();
+    }
+
+    @Test
+    public void shouldExecuteWithOnlyIfDisabledByStartParameter() {
+        getTask().onlyIf(new Spec<Task>() {
+            public boolean isSatisfiedBy(Task task) { return false; }
+        });
+        final ProjectInternal project = context.mock(ProjectInternal.class);
+        final GradleInternal gradle = context.mock(GradleInternal.class);
+        getTask().setProject(project);
+        final StartParameter startParameter = new StartParameter();
+        startParameter.setNoOpt(true);
+        context.checking(new Expectations() {{
+            allowing(project).getGradle();
+            will(returnValue(gradle));
+            allowing(gradle).getStartParameter();
+            will(returnValue(startParameter));
+        }});
+        assertExecutionEnabled();
+    }
+
+    @Test
     public void testExecutionEnabledByOnlyIfWithClosure() {
         getTask().onlyIf(HelperUtil.toClosure("{ task -> true }"));
+        final ProjectInternal project = context.mock(ProjectInternal.class);
+        final GradleInternal gradle = context.mock(GradleInternal.class);
+        getTask().setProject(project);
+        final StartParameter startParameter = new StartParameter();
+        startParameter.setNoOpt(false);
+        context.checking(new Expectations() {{
+            allowing(project).getGradle();
+            will(returnValue(gradle));
+            allowing(gradle).haveScriptsChanged();
+            will(returnValue(false));
+            allowing(gradle).getStartParameter();
+            will(returnValue(startParameter));
+        }});
         assertExecutionEnabled();
     }
 
@@ -441,12 +502,38 @@ public abstract class AbstractTaskTest {
         getTask().onlyIf(new Spec<Task>() {
             public boolean isSatisfiedBy(Task task) { return false; }
         });
+        final ProjectInternal project = context.mock(ProjectInternal.class);
+        final GradleInternal gradle = context.mock(GradleInternal.class);
+        getTask().setProject(project);
+        final StartParameter startParameter = new StartParameter();
+        startParameter.setNoOpt(false);
+        context.checking(new Expectations() {{
+            allowing(project).getGradle();
+            will(returnValue(gradle));
+            allowing(gradle).haveScriptsChanged();
+            will(returnValue(false));
+            allowing(gradle).getStartParameter();
+            will(returnValue(startParameter));
+        }});
         assertExecutionDisabled();
     }
 
     @Test
     public void testExecutionDisabledByOnlyIfWithClosure() {
         getTask().onlyIf(HelperUtil.toClosure("{ task -> false }"));
+        final ProjectInternal project = context.mock(ProjectInternal.class);
+        final GradleInternal gradle = context.mock(GradleInternal.class);
+        getTask().setProject(project);
+        final StartParameter startParameter = new StartParameter();
+        startParameter.setNoOpt(false);
+        context.checking(new Expectations() {{
+            allowing(project).getGradle();
+            will(returnValue(gradle));
+            allowing(gradle).haveScriptsChanged();
+            will(returnValue(false));
+            allowing(gradle).getStartParameter();
+            will(returnValue(startParameter));
+        }});
         assertExecutionDisabled();
     }
 

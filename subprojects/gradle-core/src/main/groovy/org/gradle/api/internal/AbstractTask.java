@@ -32,10 +32,7 @@ import org.gradle.api.tasks.TaskDependency;
 import org.gradle.internal.execution.DefaultOutputHandler;
 import org.gradle.internal.execution.OutputHandler;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Hans Dockter
@@ -210,9 +207,7 @@ public abstract class AbstractTask implements TaskInternal, DynamicObjectAware {
         executing = true;
         logger.debug("Starting to execute Task: {}", path);
         if (!isSkipped()) {
-            if (onlyIfSpec == null ||
-                    project.getGradle().getStartParameter().isNoOpt() ||
-                    onlyIfSpec.isSatisfiedBy(this)) {
+            if (onlyIfSpec == null || isOnlyIfDisabled() || onlyIfSpec.isSatisfiedBy(this)) {
                 logger.lifecycle(path);
                 didWork = true;   // assume true unless changed during execution
                 standardOutputCapture.start();
@@ -242,6 +237,12 @@ public abstract class AbstractTask implements TaskInternal, DynamicObjectAware {
         executed = true;
         logger.debug("Finished executing Task: {}", path);
     }
+
+    private boolean isOnlyIfDisabled() {
+        return project.getGradle().getStartParameter().isNoOpt() || project.getGradle().haveScriptsChanged();
+    }
+
+    
 
     private boolean isSkipped() {
         if (!enabled) {

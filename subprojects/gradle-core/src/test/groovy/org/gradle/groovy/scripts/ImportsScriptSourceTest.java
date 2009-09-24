@@ -31,14 +31,14 @@ import java.io.File;
 public class ImportsScriptSourceTest {
     private final JUnit4Mockery context = new JUnit4Mockery();
     private final File rootDir = new File("rootDir");
-    private ScriptSource backingSource;
+    private ScriptSourceInternal backingSource;
     private ImportsReader importsReader;
     private ImportsScriptSource source;
 
     @Before
     public void setUp() {
         context.setImposteriser(ClassImposteriser.INSTANCE);
-        backingSource = context.mock(ScriptSource.class);
+        backingSource = context.mock(ScriptSourceInternal.class);
         importsReader = context.mock(ImportsReader.class);
         source = new ImportsScriptSource(backingSource, importsReader, rootDir);
     }

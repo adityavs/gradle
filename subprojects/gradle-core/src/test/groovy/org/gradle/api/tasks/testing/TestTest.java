@@ -26,8 +26,6 @@ import org.gradle.util.GFileUtils;
 import org.gradle.util.GUtil;
 import org.gradle.util.WrapUtil;
 import org.gradle.util.HelperUtil;
-import org.hamcrest.Matchers;
-import static org.hamcrest.Matchers.*;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JMock;
 import org.jmock.integration.junit4.JUnit4Mockery;
@@ -35,6 +33,7 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import static org.junit.Assert.*;
 import org.junit.*;
 import org.junit.runner.RunWith;
+import static org.hamcrest.Matchers.*;
 
 import java.io.File;
 import java.util.*;
@@ -227,7 +226,7 @@ public class TestTest extends AbstractConventionTaskTest {
         }
     }
 
-    @org.junit.Test
+    @org.junit.Test                                       Sc
     public void doesOutputExistsWithTestResults() {
         File resultsDir = HelperUtil.makeNewTestDir();
         test.setTestResultsDir(resultsDir);

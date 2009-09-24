@@ -19,13 +19,13 @@ import org.gradle.api.internal.project.ImportsReader;
 
 import java.io.File;
 
-public class ImportsScriptSource implements ScriptSource {
-    private final ScriptSource source;
+public class ImportsScriptSource implements ScriptSourceInternal {
+    private final ScriptSourceInternal source;
     private final ImportsReader importsReader;
     private final File rootDir;
 
     public ImportsScriptSource(ScriptSource source, ImportsReader importsReader, File rootDir) {
-        this.source = source;
+        this.source = (ScriptSourceInternal) source;
         this.importsReader = importsReader;
         this.rootDir = rootDir;
     }
@@ -62,5 +62,13 @@ public class ImportsScriptSource implements ScriptSource {
 
     public String getDisplayName() {
         return source.getDisplayName();
+    }
+
+    public void setChanged(boolean changed) {
+        source.setChanged(changed);
+    }
+
+    public boolean hasChanged() {
+        return source.hasChanged();
     }
 }

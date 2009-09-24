@@ -18,25 +18,31 @@ package org.gradle.invocation;
 
 import groovy.lang.Closure;
 import org.gradle.BuildListener;
+import org.gradle.BuildResult;
 import org.gradle.StartParameter;
-import org.gradle.listener.ListenerManager;
 import org.gradle.api.ProjectEvaluationListener;
+import org.gradle.api.artifacts.repositories.InternalRepository;
+import org.gradle.api.execution.TaskExecutionGraph;
+import org.gradle.api.initialization.Settings;
+import org.gradle.api.initialization.dsl.ScriptHandler;
+import org.gradle.api.internal.GradleInternal;
+import org.gradle.api.internal.SettingsInternal;
+import org.gradle.api.internal.initialization.ScriptClassLoaderProvider;
+import org.gradle.api.internal.plugins.DefaultPluginRegistry;
+import org.gradle.api.internal.project.*;
 import org.gradle.api.invocation.Gradle;
 import org.gradle.api.logging.LogLevel;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
-import org.gradle.api.artifacts.repositories.InternalRepository;
-import org.gradle.api.initialization.dsl.ScriptHandler;
-import org.gradle.api.internal.GradleInternal;
-import org.gradle.api.internal.initialization.ScriptClassLoaderProvider;
-import org.gradle.api.internal.plugins.DefaultPluginRegistry;
-import org.gradle.api.internal.project.*;
 import org.gradle.execution.DefaultTaskExecuter;
 import org.gradle.execution.TaskExecuter;
+import org.gradle.groovy.scripts.ScriptSource;
+import org.gradle.listener.ListenerManager;
 import org.gradle.util.ConfigureUtil;
 import org.gradle.util.GradleVersion;
 
 import java.io.File;
+import java.util.*;
 
 public class DefaultGradle implements GradleInternal {
     private final Logger logger = Logging.getLogger(Gradle.class);
@@ -48,12 +54,14 @@ public class DefaultGradle implements GradleInternal {
     private ClassLoader buildScriptClassLoader;
     private InternalRepository internalRepository;
     private StandardOutputRedirector standardOutputRedirector;
-    private DefaultProjectRegistry<ProjectInternal> projectRegistry;
+    private IProjectRegistry<ProjectInternal> projectRegistry;
     private DefaultPluginRegistry pluginRegistry;
     private ScriptHandler scriptHandler;
     private ScriptClassLoaderProvider scriptClassLoaderProvider;
     private final ListenerManager listenerManager;
     private final DefaultIsolatedAntBuilder isolatedAntBuilder = new DefaultIsolatedAntBuilder();
+    private SettingsInternal settings;
+    private List<ScriptSource> initScriptSources = new ArrayList<ScriptSource>();
 
     public DefaultGradle(StartParameter startParameter, InternalRepository internalRepository,
                          ServiceRegistryFactory serviceRegistryFactory,
@@ -70,6 +78,26 @@ public class DefaultGradle implements GradleInternal {
         ServiceRegistry serviceRegistry = serviceRegistryFactory.createForBuild(this);
         scriptHandler = serviceRegistry.get(ScriptHandler.class);
         scriptClassLoaderProvider = serviceRegistry.get(ScriptClassLoaderProvider.class);
+        addBuildListener(new BuildListener() {
+            public void buildStarted(Gradle gradle) {
+            }
+
+            public void settingsEvaluated(Settings settings) {
+                DefaultGradle.this.settings = (SettingsInternal) settings;
+            }
+
+            public void projectsLoaded(Gradle gradle) {
+            }
+
+            public void projectsEvaluated(Gradle gradle) {
+            }
+
+            public void taskGraphPopulated(TaskExecutionGraph graph) {
+            }
+
+            public void buildFinished(BuildResult result) {
+            }
+        });
     }
 
     public String getGradleVersion() {
@@ -114,6 +142,10 @@ public class DefaultGradle implements GradleInternal {
 
     public IProjectRegistry<ProjectInternal> getProjectRegistry() {
         return projectRegistry;
+    }
+
+    public void setProjectRegistry(IProjectRegistry<ProjectInternal> projectRegistry) {
+        this.projectRegistry = projectRegistry;
     }
 
     public ClassLoader getBuildScriptClassLoader() {
@@ -206,5 +238,35 @@ public class DefaultGradle implements GradleInternal {
 
     public IsolatedAntBuilder getIsolatedAntBuilder() {
         return isolatedAntBuilder;
+    }
+
+    public ScriptSource getSettingsSource() {
+        return settings.getSettingsScript();
+    }
+
+    public void addInitScriptSource(ScriptSource initScriptSource) {
+        assert initScriptSource != null;
+        initScriptSources.add(initScriptSource);
+    }
+
+    public List<ScriptSource> getInitScriptSources() {
+        return Collections.unmodifiableList(initScriptSources);
+    }
+
+    public boolean haveScriptsChanged() {
+        for (ProjectInternal project : getProjectRegistry().getAllProjects()) {
+            if (project.getBuildScriptSource().hasChanged()) {
+                return true;
+            }
+        }
+        Set<ScriptSource> otherScriptSources = new HashSet<ScriptSource>();
+        otherScriptSources.add(getSettingsSource());
+        otherScriptSources.addAll(getInitScriptSources());
+        for (ScriptSource scriptSource : otherScriptSources) {
+            if (scriptSource.hasChanged()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

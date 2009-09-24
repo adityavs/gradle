@@ -25,6 +25,9 @@ import org.gradle.api.internal.initialization.ScriptClassLoaderProvider;
 import org.gradle.api.invocation.Gradle;
 import org.gradle.execution.TaskExecuter;
 import org.gradle.BuildListener;
+import org.gradle.groovy.scripts.ScriptSource;
+
+import java.util.List;
 
 /**
  * An internal interface for Gradle that exposed objects and concepts that are not intended for public
@@ -96,4 +99,16 @@ public interface GradleInternal extends Gradle {
     StandardOutputRedirector getStandardOutputRedirector();
 
     IsolatedAntBuilder getIsolatedAntBuilder();
+
+
+    /**
+     * Returns the Settings source script for this build.
+     */
+    ScriptSource getSettingsSource();
+
+    void addInitScriptSource(ScriptSource initScriptSource);
+
+    List<ScriptSource> getInitScriptSources();
+
+    boolean haveScriptsChanged();
 }

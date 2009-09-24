@@ -17,7 +17,6 @@ package org.gradle.internal.execution;
 
 import org.gradle.api.Task;
 import org.gradle.util.GFileUtils;
-import org.gradle.internal.execution.DefaultOutputTimestampFilePathCreator;
 
 import java.io.File;
 

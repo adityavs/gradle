@@ -42,7 +42,7 @@ public class BuildScriptProcessorTest {
     }};
     private final ProjectInternal project = context.mock(ProjectInternal.class);
     private final GradleInternal gradle = context.mock(GradleInternal.class);
-    private final ScriptSource scriptSource = context.mock(ScriptSource.class);
+    private final ScriptSourceInternal scriptSource = context.mock(ScriptSourceInternal.class);
     private final ScriptCompilerFactory scriptCompilerFactory = context.mock(ScriptCompilerFactory.class);
     private final ScriptCompiler compiler = context.mock(ScriptCompiler.class);
     private final ImportsReader importsReader = context.mock(ImportsReader.class);

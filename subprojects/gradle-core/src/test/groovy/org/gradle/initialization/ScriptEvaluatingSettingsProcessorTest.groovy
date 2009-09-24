@@ -43,7 +43,7 @@ class ScriptEvaluatingSettingsProcessorTest {
     ScriptCompilerFactory scriptProcessorMock
     DefaultSettings expectedSettings
     MockFor settingsFactoryMocker
-    ScriptSource scriptSourceMock
+    ScriptSourceInternal scriptSourceMock
     IGradlePropertiesLoader propertiesLoaderMock
     Map expectedGradleProperties
     URLClassLoader urlClassLoader
@@ -83,7 +83,7 @@ class ScriptEvaluatingSettingsProcessorTest {
 
     private void initSettingsFinder() {
         expectedSettingsFinder = new DefaultSettingsFinder()
-        scriptSourceMock = context.mock(ScriptSource)
+        scriptSourceMock = context.mock(ScriptSourceInternal)
     }
 
     @After

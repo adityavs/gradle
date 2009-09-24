@@ -50,7 +50,6 @@ public class DefaultInitScriptProcessor implements InitScriptProcessor {
         compiler.setTransformer(new InitScriptTransformer());
         ScriptRunner script = compiler.compile(InitScript.class);
         script.setDelegate(gradle);
-
         script.run();
     }
 }

@@ -15,13 +15,9 @@
  */
 package org.gradle.internal.execution;
 
-import org.gradle.api.Project;
 import org.gradle.api.Task;
-import org.gradle.api.invocation.Gradle;
 import org.gradle.util.GFileUtils;
 import org.gradle.util.HelperUtil;
-import org.gradle.internal.execution.DefaultOutputTimestampReader;
-import org.gradle.internal.execution.OutputTimestampWriter;
 import static org.hamcrest.Matchers.equalTo;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnit4Mockery;

@@ -59,7 +59,7 @@ public class DefaultScriptCompilerFactoryTest {
 
     Class expectedScriptBaseClass = groovy.lang.Script.class;
 
-    ScriptSource source;
+    ScriptSourceInternal source;
     private ScriptRunner expectedScriptRunner;
 
     @Before
@@ -75,7 +75,7 @@ public class DefaultScriptCompilerFactoryTest {
         expectedScript = context.mock(Script.class);
         expectedScriptRunner = context.mock(ScriptRunner.class);
         scriptProcessor = new DefaultScriptCompilerFactory(scriptCompilationHandlerMock, CacheUsage.ON, cacheDir, scriptRunnerFactoryMock);
-        source = context.mock(ScriptSource.class);
+        source = context.mock(ScriptSourceInternal.class);
 
         context.checking(new Expectations() {{
             allowing(source).getDisplayName();
@@ -135,6 +135,7 @@ public class DefaultScriptCompilerFactoryTest {
                 will(returnValue(expectedScript));
 
                 one(expectedScript).setScriptSource(source);
+                one(source).setChanged(false);
 
                 one(scriptRunnerFactoryMock).create(expectedScript);
                 will(returnValue(expectedScriptRunner));
@@ -215,6 +216,7 @@ public class DefaultScriptCompilerFactoryTest {
             will(returnValue(expectedScript));
 
             one(expectedScript).setScriptSource(source);
+            one(source).setChanged(false);
 
             one(scriptRunnerFactoryMock).create(expectedScript);
             will(returnValue(expectedScriptRunner));
@@ -242,7 +244,7 @@ public class DefaultScriptCompilerFactoryTest {
             will(returnValue(expectedScript));
 
             one(expectedScript).setScriptSource(source);
-
+            one(source).setChanged(false);
             one(scriptRunnerFactoryMock).create(expectedScript);
             will(returnValue(expectedScriptRunner));
         }});

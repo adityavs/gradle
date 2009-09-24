@@ -19,11 +19,11 @@ import org.gradle.api.GradleException;
 
 import java.io.File;
 
-public class StrictScriptSource implements ScriptSource {
-    private final ScriptSource source;
+public class StrictScriptSource implements ScriptSourceInternal {
+    private final ScriptSourceInternal source;
 
     public StrictScriptSource(ScriptSource source) {
-        this.source = source;
+        this.source = (ScriptSourceInternal) source;
     }
 
     public ScriptSource getSource() {
@@ -55,5 +55,13 @@ public class StrictScriptSource implements ScriptSource {
 
     public String getDisplayName() {
         return source.getDisplayName();
+    }
+
+    public void setChanged(boolean changed) {
+        source.setChanged(changed);
+    }
+
+    public boolean hasChanged() {
+        return source.hasChanged();
     }
 }

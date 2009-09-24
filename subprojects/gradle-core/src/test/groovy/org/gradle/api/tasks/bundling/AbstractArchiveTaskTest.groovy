@@ -22,16 +22,11 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.tasks.AbstractConventionTaskTest
-import org.gradle.api.tasks.bundling.AbstractArchiveTask
-import org.gradle.api.tasks.bundling.AntArchiveParameter
-import org.gradle.api.tasks.bundling.AntMetaArchiveParameter
-import org.gradle.api.tasks.bundling.ArchiveDetector
 import org.gradle.api.tasks.util.AntDirective
 import org.gradle.api.tasks.util.FileSet
 import org.gradle.api.tasks.util.ZipFileSet
 import org.gradle.util.GFileUtils
 import org.gradle.util.HelperUtil
-import org.hamcrest.Matchers
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
