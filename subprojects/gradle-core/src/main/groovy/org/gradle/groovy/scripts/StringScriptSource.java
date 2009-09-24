@@ -66,7 +66,8 @@ public class StringScriptSource implements ScriptSourceInternal {
         return true;
     }
 
+    // todo add type of changeable ScriptSource were we move this method to.
     public void setChanged(boolean changed) {
-        // ignore
+        throw new UnsupportedOperationException("You can't change the changed status of a StringScriptSource.");
     }
 }
