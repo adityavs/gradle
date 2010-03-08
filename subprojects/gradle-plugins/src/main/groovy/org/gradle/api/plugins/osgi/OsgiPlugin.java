@@ -22,6 +22,7 @@ import org.gradle.api.Task;
 import org.gradle.api.internal.plugins.osgi.DefaultOsgiManifest;
 import org.gradle.api.internal.plugins.osgi.OsgiHelper;
 import org.gradle.api.plugins.BasePluginConvention;
+import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
@@ -47,13 +48,13 @@ public class OsgiPlugin implements Plugin<Project> {
     private Action<Jar> createOsgiConfigureAction() {
         return new Action<Jar>() {
             public void execute(final Jar jar) {
-                jar.dependsOn(jar.getProject().getConfigurations().getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME).getBuildDependencies());
+                jar.dependsOn(jar.getProject().getConfigurations().getByName(JavaBasePlugin.RUNTIME_CONFIGURATION_NAME).getBuildDependencies());
                 jar.setProperty("osgi", createDefaultOsgiManifest(jar.getProject()));
                 jar.doFirst(new Action<Task>() {
                     public void execute(Task task) {
                         OsgiManifest osgiManifest = (OsgiManifest) jar.getAdditionalProperties().get("osgi");
                         osgiManifest.setClasspath(getDependencies(osgiManifest,
-                                jar.getProject().getConfigurations().getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME).resolve()));
+                                jar.getProject().getConfigurations().getByName(JavaBasePlugin.RUNTIME_CONFIGURATION_NAME).resolve()));
                         osgiManifest.overwrite(jar.getManifest());
                     }
                 });

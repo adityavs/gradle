@@ -52,13 +52,13 @@ class WarPluginTest {
     @Test public void createsConfigurations() {
         warPlugin.use(project)
 
-        def configuration = project.configurations.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME)
+        def configuration = project.configurations.getByName(JavaBasePlugin.COMPILE_CONFIGURATION_NAME)
         assertThat(Configurations.getNames(configuration.extendsFrom), equalTo(toSet(WarPlugin.PROVIDED_COMPILE_CONFIGURATION_NAME)))
         assertFalse(configuration.visible)
         assertFalse(configuration.transitive)
 
-        configuration = project.configurations.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME)
-        assertThat(Configurations.getNames(configuration.extendsFrom), equalTo(toSet(JavaPlugin.COMPILE_CONFIGURATION_NAME, WarPlugin.PROVIDED_RUNTIME_CONFIGURATION_NAME)))
+        configuration = project.configurations.getByName(JavaBasePlugin.RUNTIME_CONFIGURATION_NAME)
+        assertThat(Configurations.getNames(configuration.extendsFrom), equalTo(toSet(JavaBasePlugin.COMPILE_CONFIGURATION_NAME, WarPlugin.PROVIDED_RUNTIME_CONFIGURATION_NAME)))
         assertFalse(configuration.visible)
         assertTrue(configuration.transitive)
 

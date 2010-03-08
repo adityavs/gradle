@@ -17,13 +17,15 @@ package org.gradle.api.plugins.quality
 
 import org.gradle.api.Project
 import org.gradle.api.plugins.GroovyPlugin
+import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.ReportingBasePlugin
 import org.gradle.util.HelperUtil
 import org.junit.Test
-import static org.gradle.util.Matchers.*
+import static org.gradle.util.Matchers.dependsOn
 import static org.hamcrest.Matchers.*
-import static org.junit.Assert.*
+import static org.junit.Assert.assertThat
+import static org.junit.Assert.assertTrue
 
 class CodeQualityPluginTest {
     private final Project project = HelperUtil.createRootProject()
@@ -73,7 +75,7 @@ class CodeQualityPluginTest {
         assertThat(task.properties, equalTo(project.checkstyleProperties))
         assertThat(task, dependsOn())
 
-        task = project.tasks[JavaPlugin.CHECK_TASK_NAME]
+        task = project.tasks[JavaBasePlugin.CHECK_TASK_NAME]
         assertThat(task, dependsOn(hasItems(CodeQualityPlugin.CHECKSTYLE_MAIN_TASK, CodeQualityPlugin.CHECKSTYLE_TEST_TASK, 'checkstyleCustom')))
     }
 
@@ -104,7 +106,7 @@ class CodeQualityPluginTest {
         assertThat(task.reportFile, equalTo(project.file("build/reports/codenarc/custom.html")))
         assertThat(task, dependsOn())
 
-        task = project.tasks[JavaPlugin.CHECK_TASK_NAME]
+        task = project.tasks[JavaBasePlugin.CHECK_TASK_NAME]
         assertThat(task, dependsOn(hasItem(CodeQualityPlugin.CODE_NARC_MAIN_TASK)))
         assertThat(task, dependsOn(hasItem(CodeQualityPlugin.CODE_NARC_TEST_TASK)))
         assertThat(task, dependsOn(hasItem('codenarcCustom')))

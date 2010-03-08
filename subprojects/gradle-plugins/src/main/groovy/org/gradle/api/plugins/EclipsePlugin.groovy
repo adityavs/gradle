@@ -24,14 +24,13 @@ import org.gradle.api.artifacts.specs.DependencySpecs
 import org.gradle.api.artifacts.specs.Type
 import org.gradle.api.plugins.scala.ScalaPlugin
 import org.gradle.api.specs.Specs
+import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.GroovySourceSet
 import org.gradle.api.tasks.ScalaSourceSet
 import org.gradle.api.tasks.SourceSet
 import org.gradle.util.GUtil
 import org.gradle.util.WrapUtil
 import org.gradle.api.tasks.ide.eclipse.*
-import org.gradle.api.Task
-import org.gradle.api.tasks.Delete
 
 /**
  * <p>A {@link org.gradle.api.Plugin} which generates Eclipse project files for projects that use the {@link
@@ -110,12 +109,12 @@ public class EclipsePlugin implements Plugin<Project> {
         }
         eclipseClasspath.conventionMapping.classpathLibs = {
             ConfigurationContainer configurationContainer = project.getConfigurations();
-            configurationContainer[JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME].files {
+            configurationContainer[JavaBasePlugin.TEST_RUNTIME_CONFIGURATION_NAME].files {
                 return !(it instanceof ProjectDependency);
             } as List
         }
         eclipseClasspath.conventionMapping.projectDependencies = {
-            return new ArrayList(project.configurations[JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME].getAllDependencies(
+            return new ArrayList(project.configurations[JavaBasePlugin.TEST_RUNTIME_CONFIGURATION_NAME].getAllDependencies(
                     ProjectDependency.class));
         }
         eclipseClasspath.setDescription("Generates an Eclipse .classpath file.");
@@ -154,7 +153,7 @@ public class EclipsePlugin implements Plugin<Project> {
                 return !(it instanceof ProjectDependency);
             };
             Set<File> provided = project.configurations[WarPlugin.PROVIDED_RUNTIME_CONFIGURATION_NAME].getFiles();
-            Set<File> runtime = project.configurations[JavaPlugin.RUNTIME_CONFIGURATION_NAME].copyRecursive(
+            Set<File> runtime = project.configurations[JavaBasePlugin.RUNTIME_CONFIGURATION_NAME].copyRecursive(
                     spec).getFiles();
             runtime.removeAll(provided);
             return runtime as List;
@@ -166,7 +165,7 @@ public class EclipsePlugin implements Plugin<Project> {
             * ourselfes. This is not completely trivial due to configuration inheritance.
             */
             return new ArrayList(Specs.filterIterable(
-                    project.getConfigurations().getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME).getAllDependencies(),
+                    project.getConfigurations().getByName(JavaBasePlugin.RUNTIME_CONFIGURATION_NAME).getAllDependencies(),
                     DependencySpecs.type(Type.PROJECT))
             );
         }
@@ -179,7 +178,7 @@ public class EclipsePlugin implements Plugin<Project> {
 
     private void createDependencyOnEclipseProjectTaskOfDependentProjects(Project project, EclipseWtp eclipseWtp) {
         Set<Dependency> projectDependencies = Specs.filterIterable(
-                project.getConfigurations().getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME).getDependencies(),
+                project.getConfigurations().getByName(JavaBasePlugin.RUNTIME_CONFIGURATION_NAME).getDependencies(),
                 DependencySpecs.type(Type.PROJECT)
         );
 

@@ -94,13 +94,13 @@ public class MavenPlugin implements Plugin<Project> {
     }
 
     private void configureJavaScopeMappings(ResolverContainer resolverFactory, ConfigurationContainer configurations) {
-        resolverFactory.getMavenScopeMappings().addMapping(COMPILE_PRIORITY, configurations.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME),
+        resolverFactory.getMavenScopeMappings().addMapping(COMPILE_PRIORITY, configurations.getByName(JavaBasePlugin.COMPILE_CONFIGURATION_NAME),
                 Conf2ScopeMappingContainer.COMPILE);
-        resolverFactory.getMavenScopeMappings().addMapping(RUNTIME_PRIORITY, configurations.getByName(JavaPlugin.RUNTIME_CONFIGURATION_NAME),
+        resolverFactory.getMavenScopeMappings().addMapping(RUNTIME_PRIORITY, configurations.getByName(JavaBasePlugin.RUNTIME_CONFIGURATION_NAME),
                 Conf2ScopeMappingContainer.RUNTIME);
-        resolverFactory.getMavenScopeMappings().addMapping(TEST_COMPILE_PRIORITY, configurations.getByName(JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME),
+        resolverFactory.getMavenScopeMappings().addMapping(TEST_COMPILE_PRIORITY, configurations.getByName(JavaBasePlugin.TEST_COMPILE_CONFIGURATION_NAME),
                 Conf2ScopeMappingContainer.TEST);
-        resolverFactory.getMavenScopeMappings().addMapping(TEST_RUNTIME_PRIORITY, configurations.getByName(JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME),
+        resolverFactory.getMavenScopeMappings().addMapping(TEST_RUNTIME_PRIORITY, configurations.getByName(JavaBasePlugin.TEST_RUNTIME_CONFIGURATION_NAME),
                 Conf2ScopeMappingContainer.TEST);
     }
 

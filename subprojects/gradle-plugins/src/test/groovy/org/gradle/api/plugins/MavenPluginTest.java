@@ -21,13 +21,14 @@ import org.gradle.api.artifacts.maven.Conf2ScopeMapping;
 import org.gradle.api.artifacts.maven.Conf2ScopeMappingContainer;
 import org.gradle.api.internal.project.DefaultProject;
 import org.gradle.util.HelperUtil;
+
+import java.util.Set;
+
 import static org.gradle.util.WrapUtil.toSet;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-
-import java.util.Set;
 
 /**
  * @author Hans Dockter
@@ -62,13 +63,13 @@ public class MavenPluginTest {
     public void applyWithJavaPlugin() {
         project.getPlugins().usePlugin(JavaPlugin.class);
         mavenPlugin.use(project);
-        assertHasConfigurationAndMapping(project, JavaPlugin.COMPILE_CONFIGURATION_NAME, Conf2ScopeMappingContainer.COMPILE,
+        assertHasConfigurationAndMapping(project, JavaBasePlugin.COMPILE_CONFIGURATION_NAME, Conf2ScopeMappingContainer.COMPILE,
                 MavenPlugin.COMPILE_PRIORITY);
-        assertHasConfigurationAndMapping(project, JavaPlugin.RUNTIME_CONFIGURATION_NAME, Conf2ScopeMappingContainer.RUNTIME,
+        assertHasConfigurationAndMapping(project, JavaBasePlugin.RUNTIME_CONFIGURATION_NAME, Conf2ScopeMappingContainer.RUNTIME,
                 MavenPlugin.RUNTIME_PRIORITY);
-        assertHasConfigurationAndMapping(project, JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME, Conf2ScopeMappingContainer.TEST,
+        assertHasConfigurationAndMapping(project, JavaBasePlugin.TEST_COMPILE_CONFIGURATION_NAME, Conf2ScopeMappingContainer.TEST,
                 MavenPlugin.TEST_COMPILE_PRIORITY);
-        assertHasConfigurationAndMapping(project, JavaPlugin.TEST_RUNTIME_CONFIGURATION_NAME, Conf2ScopeMappingContainer.TEST,
+        assertHasConfigurationAndMapping(project, JavaBasePlugin.TEST_RUNTIME_CONFIGURATION_NAME, Conf2ScopeMappingContainer.TEST,
                 MavenPlugin.TEST_RUNTIME_PRIORITY);
 
         Task task = project.getTasks().getByName(MavenPlugin.INSTALL_TASK_NAME);
@@ -86,7 +87,7 @@ public class MavenPluginTest {
     @org.junit.Test
     public void applyWithoutJavaPlugin() {
         mavenPlugin.use(project);
-        assertThat(project.getConfigurations().findByName(JavaPlugin.COMPILE_CONFIGURATION_NAME),
+        assertThat(project.getConfigurations().findByName(JavaBasePlugin.COMPILE_CONFIGURATION_NAME),
                 nullValue());
     }
 }
