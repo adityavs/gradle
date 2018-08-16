@@ -1,5 +1,0 @@
-apply id: 'groovy'
-dependencies {
-    compile gradleApi()
-    groovy localGroovy()
-}

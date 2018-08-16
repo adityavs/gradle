@@ -1,4 +1,0 @@
-println 'external quiet message'
-captureStandardOutput LogLevel.INFO
-println 'external info message'
-logger.lifecycle 'external lifecycle message'

@@ -1,5 +1,0 @@
-message = rootProject.hasProperty('producerMessage') ? rootProject.producerMessage : 'null'
-
-task consume << {
-    println("Consuming message: " + message)
-}

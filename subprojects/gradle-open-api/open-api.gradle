@@ -1,6 +1,0 @@
-apply id: 'groovy'
-
-dependencies {
-    groovy libraries.groovy_depends
-}
-

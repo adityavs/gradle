@@ -1,7 +1,0 @@
-apply id: 'java'
-
-version = 'SNAPSHOT'
-
-dependencies {
-    compile 'org.codehaus.groovy:groovy-all:1.6.0'
-}

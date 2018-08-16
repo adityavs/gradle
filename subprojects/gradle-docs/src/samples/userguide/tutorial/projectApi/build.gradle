@@ -1,4 +1,0 @@
-task check << {
-    println name
-    println project.name
-}

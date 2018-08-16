@@ -1,4 +1,0 @@
-task consume << {
-    println("Consuming message: " +
-            (rootProject.hasProperty('producerMessage') ? rootProject.producerMessage : 'null'))
-}

@@ -1,9 +1,0 @@
-apply type: GreetingPlugin
-
-class GreetingPlugin implements Plugin<Project> {
-    def void use(Project project) {
-        project.task('hello') << {
-            println "Hello from the GreetingPlugin"
-        }
-    }
-}
